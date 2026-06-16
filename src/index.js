@@ -4,13 +4,13 @@ import dotenv from "dotenv"
 import connectDB from './db/index.js';
 
 dotenv.config({
-    path: './env'
+    path: './.env'
 })
 
 
 connectDB()
 .then(()=>{
-    app.Listen(process.env.PORT || 8000,()=>{
+    app.listen(process.env.PORT || 8000,()=>{
         console.log(`Server is running at Port:
             ${process.env.PORT}`)
     })
@@ -20,7 +20,7 @@ connectDB()
     // process.exit(1)
 })
 
-// import { app } from './app.js';
+import { app } from './app.js';
 
 
 
