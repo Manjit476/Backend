@@ -17,6 +17,7 @@ const userSchema = new Schema({
         unique:true,
         lowercase:true,
         trim:true,
+        match:[/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,"Please fill a valid email address"]
     },
     fullName:{
         type:String,
@@ -30,6 +31,7 @@ const userSchema = new Schema({
     },
     coverImage:{
         type:String,//cloudinary url
+        default:""
     },
     watchHistory:[
         {
@@ -39,21 +41,28 @@ const userSchema = new Schema({
     ],
     password:{
         type:String,
-        required:[true,"Password is required"]
+        required:[true,"Password is required"],
+        select:false
     },
     refreshToken:{
-        type:String
+        type:String,
+        select:false
     }
 
 },{timestamps:true})
 
-userSchema.pre("save",async function(next){
-    if(!this.isModified("password")){
-        return next()
-    }
-    this.password = await bcrypt.hash(this.password,10)
-    next()
-})
+// userSchema.pre("save",async function(next){
+//     if(!this.isModified("password")){
+//         return next()
+//     }
+//     this.password = await bcrypt.hash(this.password,10)
+//     next()
+// }) //wrong code because next() is not called when password is not modified, so the save operation will be stuck in pending state
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+
+    this.password = await bcrypt.hash(this.password, 10);
+});
 
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password,this.password)

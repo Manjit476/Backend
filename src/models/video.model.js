@@ -4,7 +4,7 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const videoSchema = new Schema({
     videoFile:{
-        type:string, // cloudinary url
+        type:String, // cloudinary url
         required:true
     },
     thumbnail:{
@@ -13,7 +13,9 @@ const videoSchema = new Schema({
     },
     title:{
         type:String,
-        required:true
+        required:true,
+        trim:true,
+        index:true
     },
     duration:{
         type:Number,
@@ -29,7 +31,8 @@ const videoSchema = new Schema({
     },
     owner:{
         type:Schema.Types.ObjectId,
-        ref:"User"
+        ref:"User",
+        required:true
     }
 },{timestamps:true}) 
 
