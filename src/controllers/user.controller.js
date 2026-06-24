@@ -114,7 +114,7 @@ const loginUser=asyncHandler(async(req,res)=>{
 
     const{username,password,email}=req.body
 
-    if(!username || !email){
+    if(!(username || email)){
         throw new ApiError("username or email is required");
     }
 
@@ -123,7 +123,7 @@ const loginUser=asyncHandler(async(req,res)=>{
             {email},
             {username}
         ]
-    })
+    }).select("+password");
 
     if(!user){
         throw new ApiError(409,"User does't  exists")
@@ -137,7 +137,7 @@ const loginUser=asyncHandler(async(req,res)=>{
 
     const {accessToken,refreshToken} =await generateAccessAndRefreshTokens(user._id)
 
-    const loggedInUser =User.findById(user._id).select("-password -refreshToken")
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
     const options={
         httpOnly:true,
@@ -147,7 +147,7 @@ const loginUser=asyncHandler(async(req,res)=>{
     return res
     .status(200)
     .cookie("accessToken",accessToken,options)
-    .cookie("refreshToken",options)
+    .cookie("refreshToken",refreshToken,options)
     .json(
         new ApiResponse(
             200,
@@ -166,8 +166,8 @@ const logoutUser = asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set:{
-                refreshToken:undefined
+            $unset:{
+                refreshToken:1
             }
         },
         {
